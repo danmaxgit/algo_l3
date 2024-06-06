@@ -22,27 +22,21 @@ typedef struct CPU {
 } CPU;
 
 
-typedef struct
-{
-    Task *data;
-    size_t capacity;
-    size_t size;
-} vec;
+typedef struct Array {
+    int *data;
+    int len;
+    int index;
+} Array;
 
 
-typedef struct Queue 
-{
-    vec* buff;
-} Queue;
-
-vec* init_vec();
-void append_vec(vec* a, Task v);
-void free_vec(vec* a);
-void erase_vec(vec* a);
-bool equals_vec(vec* a, vec* b);
+Array* init_arr(int size);
+void append_arr(Array* a, int v);
+void erase_vec(Array* a);
+bool equals_vec(Array* a, Array* b);
 int cmp(const void *a, const void *b);
-Task pop_vec(vec* a);
-void append_q(Queue* q, Task v);
-Task pop(Queue* q);
-
+int pop(Array* a);
+int pop_front(Array* a);
+int encode(Types t, int duration);
+Task decode(int v);
+void free_arr(Array* a);
 #endif  // COMMON_H_

@@ -1,86 +1,82 @@
 #include "../include/common.h"
-#include <stdio.h>
-#include <string.h>
+#include "stdlib.h"
+#include "stdio.h"
+#include <strings.h>
 
-vec* init_vec() {
-    vec *v = (vec *) malloc(sizeof(vec));
-    // v->data->duration = 0;
-    // v->data->type = T1;
-    v->size = 0;
-    v->capacity = 0;
-    return v;
+Array* init_arr(int size){
+    Array* res = (Array*)malloc(sizeof(Array));
+    res->len = size;
+    res->index = 0;
+    res->data = (int*)malloc(sizeof(int)* size);
+    return res;
 }
 
-void append_vec(vec* a, Task v) {
-    if (a->size >= a->capacity) {
-        a->capacity ? a->capacity *= 2 : a->capacity++;
-        a->data = realloc(a->data, a->capacity * sizeof(Task));
-    }
-    a->data[a->size] = v;
-    a->size++;
-}
-
-void free_veci(vec* a) {
+void free_arr(Array* a){
     free(a->data);
     free(a);
 }
-
-
-void erase_veci(vec* a) {
-    a->size = 0;
-}
-
-int cmp(const void *a, const void *b) {
-    return *(int *) a - *(int *) b;
-}
-
-bool equals_vec(vec* a, vec* b) {//!!TODO fix if needed 
-    if (a->size != b->size)
-        return false;
-    int *tempa, *tempb;
-    tempa = (int *) malloc(sizeof(int) * a->size);
-    tempb = (int *) malloc(sizeof(int) * b->size);
-    if (tempa && tempb) {
-        memcpy(tempa, a->data, sizeof(int) * a->size);
-        memcpy(tempb, b->data, sizeof(int) * b->size);
+void append_arr(Array* a, int v){
+    if (a->index < a->len) {
+        a->data[a->index] = v;
+        a->index++;
     }
-
-    if (tempa && tempb) {
-        qsort((void *)tempa, a->size, sizeof(int), cmp);
-        qsort((void *)tempb, b->size, sizeof(int), cmp);
-        for (size_t i = 0; i < a->size; i++) {
-            if (tempa[i] != tempb[i]) {
-                free(tempa);
-                free(tempb);
+    else {
+        fprintf(stderr, "overflow array");
+        return;
+    }
+}
+void erase_vec(Array* a){
+    a->index = 0;
+}
+bool equals_vec(Array* a, Array* b){
+    if (a->index != b->index) {
+        return false;
+    }
+    else{
+        for (int i = 0; i < a->index; i++) {
+            if (a->data[i] != b->data[i]) {
                 return false;
             }
         }
     }
-    free(tempa);
-    free(tempb);
     return true;
 }
-
-Task pop_vec(vec* a){
-    if (a->size > 0) {
-        a->size--;
-        return a->data[a->size + 1];
+int pop(Array* a){
+    if (a->index > 0) {
+        a->index--;
+        return a->data[a->index + 1];
+    }
+    else {
+        fprintf(stderr, "None elements in array");
     }
 }
-
-void append_q(Queue* q, Task v) {
-    append_vec(q->buff, v);
-}
-Task pop(Queue* q){
-    Task temp = {0,0};
-    if (q->buff->size > 0) {
-        temp = q->buff->data[0];
-        for(size_t i = 0; i < q->buff->size - 1; i++){
-            q->buff->data[i] = q->buff->data[i + 1];
+int pop_front(Array* a){
+    if (a->index > 0) {
+        int res = a->data[0];
+        for (int i = 0; i < a->index - 1; i++) {
+            a->data[i] = a->data[i + 1];
         }
-        q->buff->size--;
-        return temp;    
+        a->index--;
+        return res;
     }
-    Task t = {-1, -1};
+    else {
+        fprintf(stderr, "None elements in array");
+    }
+}
+int encode(Types t, int duration){
+    int res = 0;
+    res = t % 2 << 0 | t / 2 << 1;
+    res |= duration % 2 << 2 | duration / 2 << 3 | \
+    duration / 4 << 4 | duration / 8 << 5 | \
+    duration / 16 << 6 | duration / 32 << 7;
+    return res; 
+}
+Task decode(int v){
+    Task t = {0, 0};
+    t.type = (v & (1 << 0)) + (v & (1 << 1));
+    t.duration = (v & (1 << 2)) + (v & (1 << 3)) + \
+                 (v & (1 << 4)) + (v & (1 << 5)) + \
+                 (v & (1 << 6)) + (v & (1 << 7));
+    t.duration /= 4;
     return t;
 }
