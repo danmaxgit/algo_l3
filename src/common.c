@@ -44,7 +44,7 @@ bool equals_vec(Array* a, Array* b){
 int pop(Array* a){
     if (a->index > 0) {
         a->index--;
-        return a->data[a->index + 1];
+        return a->data[a->index];
     }
     else {
         fprintf(stderr, "None elements in array");
